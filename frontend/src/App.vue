@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import { RouterLink, RouterView } from 'vue-router'
+import { getServices } from './data/services'
 
 interface ServiceItem {
   id: string;
@@ -18,8 +18,7 @@ const categories = ref<ServiceCategory[]>([])
 
 onMounted(async () => {
   try {
-    const res = await axios.get('/api/services')
-    categories.value = res.data
+    categories.value = await getServices()
   } catch (err) {
     console.error("Failed to load services", err)
   }
@@ -40,18 +39,18 @@ onMounted(async () => {
               Services
             </a>
             <ul class="dropdown-menu">
-              <li v-for="cat in categories" :key="cat.id">
-                <h6 class="dropdown-header">{{ cat.title }}</h6>
-                <RouterLink 
-                  v-for="item in cat.items" 
-                  :key="item.id" 
-                  class="dropdown-item" 
-                  :to="{ name: 'home', hash: '#' + item.id }"
-                >
-                  {{ item.title }}
-                </RouterLink>
-                <li><hr class="dropdown-divider" v-if="cat !== categories[categories.length-1]"></li>
-              </li>
+              <template v-for="(cat, index) in categories" :key="cat.id">
+                <li><h6 class="dropdown-header">{{ cat.title }}</h6></li>
+                <li v-for="item in cat.items" :key="item.id">
+                  <RouterLink
+                    class="dropdown-item"
+                    :to="{ name: 'home', hash: '#' + item.id }"
+                  >
+                    {{ item.title }}
+                  </RouterLink>
+                </li>
+                <li v-if="index < categories.length - 1"><hr class="dropdown-divider"></li>
+              </template>
             </ul>
           </li>
           <li class="nav-item">

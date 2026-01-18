@@ -1,30 +1,12 @@
 <script setup lang="ts">
 import { ref, onMounted } from 'vue'
-import axios from 'axios'
 import ServiceCard from '../components/ServiceCard.vue'
-
-interface ServiceItem {
-  id: string;
-  title: string;
-  description: string;
-  image_url: string;
-}
-
-interface ServiceCategory {
-  id: string;
-  title: string;
-  items: ServiceItem[];
-}
+import { getServices, type ServiceCategory } from '../data/services'
 
 const categories = ref<ServiceCategory[]>([])
 
 onMounted(async () => {
-  try {
-    const res = await axios.get('/api/services')
-    categories.value = res.data
-  } catch (err) {
-    console.error(err)
-  }
+  categories.value = await getServices()
 })
 </script>
 

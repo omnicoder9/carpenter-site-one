@@ -1,6 +1,6 @@
 <script setup lang="ts">
 import { ref } from 'vue'
-import axios from 'axios'
+import { baseURL } from '@/data/services'
 
 const form = ref({
   name: '',
@@ -15,10 +15,21 @@ const submitForm = async () => {
   loading.value = true
   status.value = ''
   try {
-    await axios.post('/api/contact', form.value)
-    status.value = 'success'
-    form.value = { name: '', email: '', message: '' }
-  } catch (err) {
+    const response = await fetch(`${baseURL}/api/contact`, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify(form.value),
+    })
+    if (response.ok) {
+      status.value = 'success'
+      form.value = { name: '', email: '', message: '' }
+    } else {
+      throw new Error('Failed to send message')
+    }
+  } catch (error) {
+    console.error('Error submitting form:', error)
     status.value = 'error'
   } finally {
     loading.value = false
